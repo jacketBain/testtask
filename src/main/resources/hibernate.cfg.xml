@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- Connection settings -->
+        <property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
+        <property name="connection.url">jdbc:hsqldb:file:C:/Users/Jacke/IdeaProjects/test-task/testtaskmed</property>
+        <property name="connection.username">SA</property>
+        <property name="connection.password"></property>
+        <property name="hbm2ddl.auto">create-drop</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>
+
+        <!-- Other hibernate settings -->
+        <property name="show_sql">true</property>
+
+        <!-- Annotated classes (Mapping from Annotations) -->
+        <mapping class="com.haulmont.testtask.entity.Patient"/>
+
+
+        <!-- Mapping from configuration file (as an alternative to annotations) -->
+        <!--<mapping resource="mapping.hbm.xml"/>-->
+    </session-factory>
+</hibernate-configuration>
