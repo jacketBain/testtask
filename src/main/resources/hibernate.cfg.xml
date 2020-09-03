@@ -7,7 +7,7 @@
         <property name="connection.url">jdbc:hsqldb:file:C:/Users/Jacke/IdeaProjects/test-task/testtaskmed</property>
         <property name="connection.username">SA</property>
         <property name="connection.password"></property>
-        <property name="hbm2ddl.auto">create-drop</property>
+        <property name="hbm2ddl.auto">create</property>
         <property name="hibernate.dialect">org.hibernate.dialect.HSQLDialect</property>
 
         <!-- Other hibernate settings -->
@@ -15,6 +15,8 @@
 
         <!-- Annotated classes (Mapping from Annotations) -->
         <mapping class="com.haulmont.testtask.entity.Patient"/>
+        <mapping class="com.haulmont.testtask.entity.Doctor"/>
+        <mapping class="com.haulmont.testtask.entity.Prescription"/>
 
 
         <!-- Mapping from configuration file (as an alternative to annotations) -->

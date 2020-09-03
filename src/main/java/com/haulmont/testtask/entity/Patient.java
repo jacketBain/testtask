@@ -2,27 +2,32 @@ package com.haulmont.testtask.entity;
 
 
 import javax.persistence.*;
+import java.util.LinkedList;
+import java.util.List;
 
 @SequenceGenerator(name = "SEQ_PATIENT",sequenceName = "SEQ_PATIENT")
 @Entity
-@Table(name = "Patient")
+@Table(name = "PATIENT")
 public class Patient {
     @Id
     @GeneratedValue(generator = "SEQ_PATIENT")
-    @Column(name = "id_patient",unique = true, nullable = false)
+    @Column(name = "ID_PATIENT",unique = true, nullable = false)
     private Long patientId;
 
-    @Column(name = "firstname", nullable = false)
+    @Column(name = "FIRSTNAME", nullable = false)
     private String firstName;
 
-    @Column(name = "lastname", nullable = false)
+    @Column(name = "MIDDLENAME", nullable = false)
     private String secondName;
 
-    @Column(name = "middlename", nullable = false)
+    @Column(name = "LASTNAME", nullable = false)
     private String middleName;
 
-    @Column(name = "phonenumber",unique = true, nullable = false)
+    @Column(name = "PHONENUMBER",unique = true, nullable = false)
     private String phoneNumber;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "patientId")
+    private List<Prescription> prescriptionList = new LinkedList<Prescription>();
 
     public Patient() {
     }
