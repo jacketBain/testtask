@@ -29,16 +29,6 @@ public class Patient {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "patientId")
     private List<Prescription> prescriptionList = new LinkedList<Prescription>();
 
-    public Patient() {
-    }
-
-    public Patient(String firstName, String secondName, String middleName, String phoneNumber) {
-        this.firstName = firstName;
-        this.secondName = secondName;
-        this.middleName = middleName;
-        this.phoneNumber = phoneNumber;
-    }
-
     public Long getPatientId() {
         return patientId;
     }
@@ -77,5 +67,13 @@ public class Patient {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public List<Prescription> getPrescriptionList() {
+        return prescriptionList;
+    }
+
+    public void setPrescriptionList(List<Prescription> prescriptionList) {
+        this.prescriptionList = prescriptionList;
     }
 }

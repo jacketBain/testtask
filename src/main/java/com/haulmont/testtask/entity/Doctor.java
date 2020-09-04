@@ -28,4 +28,51 @@ public class Doctor {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "doctorId")
     private List<Prescription> prescriptionList = new LinkedList<Prescription>();
 
+    public Long getDoctortId() {
+        return doctortId;
+    }
+
+    public void setDoctortId(Long doctortId) {
+        this.doctortId = doctortId;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getSecondName() {
+        return secondName;
+    }
+
+    public void setSecondName(String secondName) {
+        this.secondName = secondName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public List<Prescription> getPrescriptionList() {
+        return prescriptionList;
+    }
+
+    public void setPrescriptionList(List<Prescription> prescriptionList) {
+        this.prescriptionList = prescriptionList;
+    }
 }
