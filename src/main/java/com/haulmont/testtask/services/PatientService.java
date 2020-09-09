@@ -16,7 +16,6 @@ public class PatientService {
         return patientDAO.findById(id);
     }
 
-
     public void deletePatient(Patient patient) {
         patientDAO.delete(patient);
     }

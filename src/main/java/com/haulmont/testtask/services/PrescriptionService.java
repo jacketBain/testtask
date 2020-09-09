@@ -6,6 +6,7 @@ import com.haulmont.testtask.entity.Prescription;
 import java.util.List;
 
 public class PrescriptionService {
+
     private PrescriptionDAO prescriptionDAO = new PrescriptionDAO();
 
     public PrescriptionService() {
@@ -14,7 +15,6 @@ public class PrescriptionService {
     public Prescription findPrescription(Long id) {
         return prescriptionDAO.findById(id);
     }
-
 
     public void deletePrescription(Prescription patient) {
         prescriptionDAO.delete(patient);

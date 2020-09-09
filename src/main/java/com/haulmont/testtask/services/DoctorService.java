@@ -16,6 +16,9 @@ public class DoctorService {
         return doctorDAO.findById(id);
     }
 
+    public void saveDoctor(Doctor doctor){
+        doctorDAO.save(doctor);
+    }
 
     public void deleteDoctor(Doctor doctor) {
         doctorDAO.delete(doctor);

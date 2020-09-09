@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PrescriptionDAO implements IDao<Prescription,Long> {
+
     public Prescription findById(Long id) {
             Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
             Transaction tx1 = session.beginTransaction();
