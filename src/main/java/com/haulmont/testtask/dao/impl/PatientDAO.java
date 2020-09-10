@@ -45,8 +45,11 @@ public class PatientDAO implements  IDao<Patient,Long> {
             }
 
     public List<Patient> findAll() {
-            List<Patient> patients = (ArrayList<Patient>)  HibernateSessionFactoryUtil.getSessionFactory()
-                    .openSession().createQuery("From Patient ",Patient.class).list();
+            Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
+            Transaction tx1 = session.beginTransaction();
+            List<Patient> patients = (ArrayList<Patient>)  session.createQuery("From Patient ",Patient.class).list();
+            tx1.commit();
+            session.close();
             return patients;
             }
 

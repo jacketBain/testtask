@@ -19,10 +19,8 @@ public class MainView extends UI {
     protected void init(VaadinRequest request) {
         String basepath = VaadinService.getCurrent()
                 .getBaseDirectory().getAbsolutePath();
-        FileResource resourceDocImage = new FileResource(new File(basepath +
-                "/WEB-INF/images/banner.jpg"));
-        FileResource resourcePacImage = new FileResource(new File(basepath +
-                "/WEB-INF/images/mainLogo.png"));
+        FileResource resourceBanner = new FileResource(new File(basepath +
+                "/WEB-INF/images/banner.png"));
 
         VerticalLayout layout = new VerticalLayout();
         layout.setMargin(true);
@@ -31,7 +29,9 @@ public class MainView extends UI {
         //mainBar.setMargin(true);
         //mainBar.addComponent(new Label("База данных врачей, пациентов и рецептов"));
         Image mainLogo = new Image();
-        mainLogo.setSource(resourceDocImage);
+        mainLogo.setWidth("256px");
+        mainLogo.setHeight("256px");
+        mainLogo.setSource(resourceBanner);
         mainBar.addComponent(mainLogo);
         layout.addComponent(mainBar);
         layout.setComponentAlignment(mainBar,Alignment.TOP_CENTER);
@@ -48,6 +48,10 @@ public class MainView extends UI {
         VerticalLayout patientsTab = new VerticalLayout();
         PatientView.initAll(this, patientsTab);
         tabsheet.addTab(patientsTab, "Пациенты");
+
+        VerticalLayout prescriptionsTab = new VerticalLayout();
+        PrescriptionView.initAll(this, prescriptionsTab);
+        tabsheet.addTab(prescriptionsTab, "Рецепты");
 
         setContent(layout);
     }

@@ -17,7 +17,7 @@ public class Patient {
     @Column(name = "FIRSTNAME", nullable = false)
     private String firstName;
 
-    @Column(name = "MIDDLENAME", nullable = false)
+    @Column(name = "MIDDLENAME")
     private String secondName;
 
     @Column(name = "LASTNAME", nullable = false)
@@ -75,5 +75,12 @@ public class Patient {
 
     public void setPrescriptionList(List<Prescription> prescriptionList) {
         this.prescriptionList = prescriptionList;
+    }
+
+    public String getFullName(){
+        if(middleName!=null)
+            return secondName+" "+firstName.charAt(0)+"."+middleName.charAt(0)+".";
+        else
+            return secondName+" "+firstName.charAt(0)+".";
     }
 }

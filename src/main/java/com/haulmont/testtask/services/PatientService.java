@@ -1,6 +1,7 @@
 package com.haulmont.testtask.services;
 
 import com.haulmont.testtask.dao.impl.PatientDAO;
+import com.haulmont.testtask.entity.Doctor;
 import com.haulmont.testtask.entity.Patient;
 
 import java.util.List;
@@ -14,6 +15,10 @@ public class PatientService {
 
     public Patient findPatient(Long id) {
         return patientDAO.findById(id);
+    }
+
+    public void savePatient(Patient patient){
+        patientDAO.save(patient);
     }
 
     public void deletePatient(Patient patient) {
