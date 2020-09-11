@@ -1,5 +1,6 @@
 package com.haulmont.testtask.view;
 
+import com.haulmont.testtask.entity.Doctor;
 import com.haulmont.testtask.entity.Patient;
 import com.haulmont.testtask.services.PatientService;
 import com.vaadin.annotations.StyleSheet;
@@ -93,6 +94,10 @@ public class PatientView {
                 .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                 .withStatusLabel(errorMessage)
                 .bind(Patient::getSecondName, Patient::setSecondName);
+        binder.forField(middleNameTextField)
+                .withValidator(name -> name.length() == 0 || name.length() >= 2 && name.length() <= 50, "Некоректная длинна отчества.")
+                .withStatusLabel(errorMessage)
+                .bind(Patient::getMiddleName, Patient::setMiddleName);
         binder.forField(phoneTextField).asRequired()
                 .withValidator(name -> name.length() > 10 && name.substring(0, 2).equals("+7") && name.length() <= 12, "Неверный формат номера")
                 .withStatusLabel(errorMessage)
@@ -193,6 +198,10 @@ public class PatientView {
                     .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                     .withStatusLabel(errorMessage)
                     .bind(Patient::getSecondName, Patient::setSecondName);
+            binder.forField(middleNameTextField)
+                    .withValidator(name -> name.length() == 0 || name.length() >= 2 && name.length() <= 50, "Некоректная длинна отчества.")
+                    .withStatusLabel(errorMessage)
+                    .bind(Patient::getMiddleName, Patient::setMiddleName);
             binder.forField(phoneTextField).asRequired()
                     .withValidator(name -> name.length() > 10 && name.substring(0, 2).equals("+7") && name.length() <= 12, "Неверный формат номера")
                     .withStatusLabel(errorMessage)

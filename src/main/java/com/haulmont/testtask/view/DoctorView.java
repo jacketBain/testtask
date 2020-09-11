@@ -99,6 +99,10 @@ public class DoctorView {
                 .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                 .withStatusLabel(errorMessage)
                 .bind(Doctor::getSecondName, Doctor::setSecondName);
+        binder.forField(middleNameTextField)
+                .withValidator(name -> name.length() == 0 || name.length() >= 2 && name.length() <= 50, "Некоректная длинна отчества.")
+                .withStatusLabel(errorMessage)
+                .bind(Doctor::getMiddleName, Doctor::setMiddleName);
         binder.forField(specTextField).asRequired()
                 .withValidator(name ->  name.length() >= 2 && name.length() <=50 ,"Некоректная длинна специализации.")
                 .withStatusLabel(errorMessage)
@@ -197,6 +201,10 @@ public class DoctorView {
                     .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                     .withStatusLabel(errorMessage)
                     .bind(Doctor::getSecondName, Doctor::setSecondName);
+            binder.forField(middleNameTextField)
+                    .withValidator(name -> name.length() == 0 || name.length() >= 2 && name.length() <= 50, "Некоректная длинна отчества.")
+                    .withStatusLabel(errorMessage)
+                    .bind(Doctor::getMiddleName, Doctor::setMiddleName);
             binder.forField(specTextField).asRequired()
                     .withValidator(name ->  name.length() >= 2 && name.length() <=50 ,"Некоректная длинна специализации.")
                     .withStatusLabel(errorMessage)
@@ -337,34 +345,37 @@ public class DoctorView {
         }
     }
     private static void openModalStatistic (MainView mainView){
-        modalWindow = new Window("Статистика");
-        modalWindow.setModal(true);
-
-        gridStatistic = new Grid<>();
-        gridStatistic.setWidth("500px");
-        gridStatistic.setHeight("500px");
-
-
         doctors = doctorService.findAllDoctors();
-        gridStatistic.setItems(doctors);
-        gridStatistic.addColumn(Doctor::getFullName).setCaption("ФИО врача");
-        gridStatistic.addColumn(Doctor::getCountOfPrescriptions).setCaption("Кол-во рецептов");
+        if (doctorService.findAllDoctors().size()!=0) {
+            modalWindow = new Window("Статистика");
+            modalWindow.setModal(true);
+
+            gridStatistic = new Grid<>();
+            gridStatistic.setWidth("500px");
+            gridStatistic.setHeight("500px");
+
+            gridStatistic.setItems(doctors);
+            gridStatistic.addColumn(Doctor::getFullName).setCaption("ФИО врача");
+            gridStatistic.addColumn(Doctor::getCountOfPrescriptions).setCaption("Кол-во рецептов");
 
 
-        Button btnCancel = new Button("Закрыть");
-        btnCancel.setStyleName("danger");
-        btnCancel.addClickListener(e -> modalWindow.close());
-        VerticalLayout modalWindowLayout = new VerticalLayout();
-        HorizontalLayout buttonModalBar = new HorizontalLayout(btnCancel);
-        buttonModalBar.setWidth("550px");
-        modalWindow.setContent(modalWindowLayout);
-        modalWindowLayout.addComponents(
-                gridStatistic,
-                buttonModalBar);
-        modalWindowLayout.setComponentAlignment(gridStatistic,Alignment.TOP_CENTER);
-        buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_CENTER);
-        modalWindow.center();
-        modalWindowLayout.setWidth("550px");
-        mainView.addWindow(modalWindow);
+            Button btnCancel = new Button("Закрыть");
+            btnCancel.setStyleName("danger");
+            btnCancel.addClickListener(e -> modalWindow.close());
+            VerticalLayout modalWindowLayout = new VerticalLayout();
+            HorizontalLayout buttonModalBar = new HorizontalLayout(btnCancel);
+            buttonModalBar.setWidth("550px");
+            modalWindow.setContent(modalWindowLayout);
+            modalWindowLayout.addComponents(
+                    gridStatistic,
+                    buttonModalBar);
+            modalWindowLayout.setComponentAlignment(gridStatistic,Alignment.TOP_CENTER);
+            buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_CENTER);
+            modalWindow.center();
+            modalWindowLayout.setWidth("550px");
+            mainView.addWindow(modalWindow);
+        } else {
+            new Notification(null, "Врачи отсутствуют", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+        }
     }
 }

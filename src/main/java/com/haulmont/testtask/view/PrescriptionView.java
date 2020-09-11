@@ -51,16 +51,30 @@ public class PrescriptionView {
         prescriptionService = new PrescriptionService();
         patientService = new PatientService();
 
+        Button btnApplyFilter = new Button("Применить");
+        btnApplyFilter.setStyleName("friendly");
+        btnApplyFilter.setEnabled(false);
+        Button btnOffFilter = new Button("Отменить");
+        btnOffFilter.setStyleName("danger");
+        btnOffFilter.setEnabled(false);
+
         HorizontalLayout filterBar = new HorizontalLayout();
         ComboBox<Patient> patientComboBox = new ComboBox<>("Пациент");
-        try{
-            List<Patient> patients = patientService.findAllPatients();
-            patientComboBox.setItemCaptionGenerator(Patient::getFullName);
-            patientComboBox.setItems(patients);
-            patientComboBox.setEmptySelectionAllowed(false);
-            patientComboBox.setValue(patients.get(0));
-        } catch (Exception ex) {
-        }
+        patientComboBox.addFocusListener(event -> {
+            try{
+                List<Patient> patients = patientService.findAllPatients();
+                patientComboBox.setItemCaptionGenerator(Patient::getFullName);
+                patientComboBox.setItems(patients);
+                patientComboBox.setEmptySelectionAllowed(false);
+                patientComboBox.setValue(patients.get(0));
+                btnApplyFilter.setEnabled(true);
+                btnOffFilter.setEnabled(true);
+            } catch (IndexOutOfBoundsException ex) {
+                new Notification(null, "Пациенты отсутствуют", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+            } catch (Exception ex) {
+                new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+            }
+        });
 
         TextField descriptionTextField = new TextField("Описание");
         descriptionTextField.setWidth("320px");
@@ -69,11 +83,6 @@ public class PrescriptionView {
         priorityComboBox.setItems("-","Нормальный","Cito","Statim");
         priorityComboBox.setValue("-");
         priorityComboBox.setEmptySelectionAllowed(false);
-
-        Button btnApplyFilter = new Button("Применить");
-        btnApplyFilter.setStyleName("friendly");
-        Button btnOffFilter = new Button("Отменить");
-        btnOffFilter.setStyleName("danger");
 
         filterBar.addComponents(patientComboBox,priorityComboBox,descriptionTextField,btnApplyFilter,btnOffFilter);
 
@@ -120,34 +129,42 @@ public class PrescriptionView {
         patientService = new PatientService();
 
         ComboBox<Doctor> doctorComboBox = new ComboBox<>("Врач");
-        try{
-            List<Doctor> doctors = doctorService.findAllDoctors();
-            doctorComboBox.setItemCaptionGenerator(Doctor::getFullName);
-            doctorComboBox.setItems(doctors);
-            doctorComboBox.setEmptySelectionAllowed(false);
-            doctorComboBox.setValue(doctors.get(0));
-        } catch (Exception ex) {
-            new Notification(null, "Ошибка получения списка врачей", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-        }
+        doctorComboBox.addFocusListener(event -> {
+            try{
+                List<Doctor> patients = doctorService.findAllDoctors();
+                doctorComboBox.setItemCaptionGenerator(Doctor::getFullName);
+                doctorComboBox.setItems(patients);
+                doctorComboBox.setEmptySelectionAllowed(false);
+                doctorComboBox.setValue(patients.get(0));
+            } catch (IndexOutOfBoundsException ex) {
+                new Notification(null, "Доктора отсутствуют", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+            } catch (Exception ex) {
+                new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+            }
+        });
         doctorComboBox.setWidth("320px");
 
         ComboBox<Patient> patientComboBox = new ComboBox<>("Пациент");
-        try{
-            List<Patient> patients = patientService.findAllPatients();
-            patientComboBox.setItemCaptionGenerator(Patient::getFullName);
-            patientComboBox.setItems(patients);
-            patientComboBox.setEmptySelectionAllowed(false);
-            patientComboBox.setValue(patients.get(0));
-        } catch (Exception ex) {
-            new Notification(null, "Ошибка получения списка пациентов", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-        }
+        patientComboBox.addFocusListener(event -> {
+            try{
+                List<Patient> patients = patientService.findAllPatients();
+                patientComboBox.setItemCaptionGenerator(Patient::getFullName);
+                patientComboBox.setItems(patients);
+                patientComboBox.setEmptySelectionAllowed(false);
+                patientComboBox.setValue(patients.get(0));
+            } catch (IndexOutOfBoundsException ex) {
+                new Notification(null, "Пациенты отсутствуют", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+            } catch (Exception ex) {
+                new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+            }
+        });
         patientComboBox.setWidth("320px");
 
         ComboBox<String> priorityComboBox = new ComboBox<>("Приоритет");
         priorityComboBox.setItems("Нормальный","Cito","Statim");
         priorityComboBox.setValue("Нормальный");
         priorityComboBox.setEmptySelectionAllowed(false);
-        patientComboBox.setWidth("320px");
+        priorityComboBox.setWidth("320px");
 
         DateField startDateField = new DateField("Дата начала действия");
         startDateField.setValue(LocalDate.now());
@@ -255,27 +272,35 @@ public class PrescriptionView {
            patientService = new PatientService();
 
            ComboBox<Doctor> doctorComboBox = new ComboBox<>("Врач");
-           try{
-               List<Doctor> doctors = doctorService.findAllDoctors();
-               doctorComboBox.setItemCaptionGenerator(Doctor::getFullName);
-               doctorComboBox.setItems(doctors);
-               doctorComboBox.setEmptySelectionAllowed(false);
-               doctorComboBox.setSelectedItem(selectedPrescription.getDoctorId());
-           } catch (Exception ex) {
-               new Notification(null, "Ошибка получения списка врачей", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-           }
+           doctorComboBox.addFocusListener(event -> {
+               try{
+                   List<Doctor> patients = doctorService.findAllDoctors();
+                   doctorComboBox.setItemCaptionGenerator(Doctor::getFullName);
+                   doctorComboBox.setItems(patients);
+                   doctorComboBox.setEmptySelectionAllowed(false);
+                   doctorComboBox.setValue(patients.get(0));
+               } catch (IndexOutOfBoundsException ex) {
+                   new Notification(null, "Доктора отсутствуют", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+               } catch (Exception ex) {
+                   new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+               }
+           });
            doctorComboBox.setWidth("320px");
 
            ComboBox<Patient> patientComboBox = new ComboBox<>("Пациент");
-           try{
-               List<Patient> patients = patientService.findAllPatients();
-               patientComboBox.setItemCaptionGenerator(Patient::getFullName);
-               patientComboBox.setItems(patients);
-               patientComboBox.setEmptySelectionAllowed(false);
-               patientComboBox.setSelectedItem(selectedPrescription.getPatientId());
-           } catch (Exception ex) {
-               new Notification(null, "Ошибка получения списка пациентов", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-           }
+           patientComboBox.addFocusListener(event -> {
+               try{
+                   List<Patient> patients = patientService.findAllPatients();
+                   patientComboBox.setItemCaptionGenerator(Patient::getFullName);
+                   patientComboBox.setItems(patients);
+                   patientComboBox.setEmptySelectionAllowed(false);
+                   patientComboBox.setValue(patients.get(0));
+               } catch (IndexOutOfBoundsException ex) {
+                   new Notification(null, "Пациенты отсутствуют", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+               } catch (Exception ex) {
+                   new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+               }
+           });
            patientComboBox.setWidth("320px");
 
            ComboBox<String> priorityComboBox = new ComboBox<>("Приоритет");
