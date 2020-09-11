@@ -14,11 +14,11 @@ public class Prescription {
     @Column(name = "ID_PRESCRIPTION",unique = true, nullable = false)
     private Long prescriptionId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "ID_DOCTOR")
     private Doctor doctorId;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn (name = "ID_PATIENT")
     private Patient patientId;
 
@@ -31,7 +31,7 @@ public class Prescription {
     @Column(name = "DURATION", nullable = false)
     private Long duration;
 
-    @Column(name = "PRIORITY", nullable = false)
+    @Column(name = "PRIORITY", nullable = false, length = 10)
     private String priority;
 
     @Transient
@@ -107,13 +107,13 @@ public class Prescription {
     }
 
     public String getFullNameDoctor(){
-        if(doctorId.getMiddleName()!=null)
+        if(!doctorId.getMiddleName().equals(""))
             return doctorId.getSecondName()+" "+doctorId.getFirstName().charAt(0)+"."+doctorId.getMiddleName().charAt(0)+".";
         else
             return doctorId.getSecondName()+" "+doctorId.getFirstName().charAt(0)+".";
     }
     public String getFullNamePatient(){
-        if(patientId.getMiddleName()!=null)
+        if(!patientId.getMiddleName().equals(""))
             return patientId.getSecondName()+" "+patientId.getFirstName().charAt(0)+"."+patientId.getMiddleName().charAt(0)+".";
         else
             return patientId.getSecondName()+" "+patientId.getFirstName().charAt(0)+".";

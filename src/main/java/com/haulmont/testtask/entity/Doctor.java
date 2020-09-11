@@ -13,19 +13,19 @@ public class Doctor {
     @Column(name = "ID_DOCTOR",unique = true, nullable = false)
     private Long doctortId;
 
-    @Column(name = "FIRSTNAME", nullable = false)
+    @Column(name = "FIRSTNAME", nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "SECONDNAME", nullable = false)
+    @Column(name = "SECONDNAME", nullable = false, length = 50)
     private String secondName;
 
-    @Column(name = "MIDDLENAME")
+    @Column(name = "MIDDLENAME", length = 50)
     private String middleName;
 
-    @Column(name = "SPECIALIZATION", nullable = false)
+    @Column(name = "SPECIALIZATION", nullable = false, length = 50)
     private String specialization;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "doctorId")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "doctorId")
     private List<Prescription> prescriptionList = new LinkedList<Prescription>();
 
     public Long getDoctortId() {
@@ -77,9 +77,12 @@ public class Doctor {
     }
 
     public String getFullName(){
-        if(middleName!="")
+        if(!middleName.equals(""))
             return secondName+" "+firstName.charAt(0)+"."+middleName.charAt(0)+".";
         else
             return secondName+" "+firstName.charAt(0)+".";
+    }
+    public int getCountOfPrescriptions(){
+        return prescriptionList.size();
     }
 }

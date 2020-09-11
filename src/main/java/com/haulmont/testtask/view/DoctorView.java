@@ -17,6 +17,7 @@ import java.util.List;
 
 public class DoctorView {
     private static Grid<Doctor> gridDoctor;
+    private static Grid<Doctor> gridStatistic;
 
     private static Window modalWindow;
 
@@ -39,17 +40,21 @@ public class DoctorView {
         Button btnEditDoctor = new Button("Изменить");
         btnEditDoctor.setStyleName("primary");
 
-
         Button btnDelDoctor = new Button("Удалить");
         btnDelDoctor.setStyleName("danger");
 
+        Button btnShowStatistic = new Button("Показать статистику");
+
         doctorService = new DoctorService();
-        btnsLayout.addComponents(btnAddDoctor, btnEditDoctor, btnDelDoctor);
+        btnsLayout.addComponents(btnAddDoctor, btnEditDoctor, btnDelDoctor, btnShowStatistic);
+
+        btnsLayout.setComponentAlignment(btnShowStatistic,Alignment.TOP_RIGHT);
 
         //Events
         btnAddDoctor.addClickListener(event -> openModalAddDoctor(mainView));
         btnEditDoctor.addClickListener(event -> openModalEditDoctor(mainView));
         btnDelDoctor.addClickListener(event -> openModalDeleteDoctor(mainView));
+        btnShowStatistic.addClickListener(event -> openModalStatistic(mainView));
 
         fillDoctorsTable();
         layout.addComponents(btnsLayout, gridDoctor);
@@ -130,7 +135,16 @@ public class DoctorView {
                 buttonModalBar,
                 errorMessage);
         modalWindow.center();
-        modalWindowLayout.setWidth("350px");
+
+        modalWindowLayout.setComponentAlignment(firstNameTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(secondNameTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(middleNameTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(specTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(errorMessage,Alignment.TOP_CENTER);
+        buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+        buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+        modalWindowLayout.setWidth("400px");
         mainView.addWindow(modalWindow);
 
 
@@ -183,16 +197,12 @@ public class DoctorView {
                     .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                     .withStatusLabel(errorMessage)
                     .bind(Doctor::getSecondName, Doctor::setSecondName);
-            binder.forField(middleNameTextField).asRequired()
-                    .withValidator(name -> name.length() <=50,"Некоректная длинна отчества.")
-                    .withStatusLabel(errorMessage)
-                    .bind(Doctor::getMiddleName, Doctor::setMiddleName);
             binder.forField(specTextField).asRequired()
                     .withValidator(name ->  name.length() >= 2 && name.length() <=50 ,"Некоректная длинна специализации.")
                     .withStatusLabel(errorMessage)
                     .bind(Doctor::getSpecialization, Doctor::setSpecialization);
 
-            Button btnOK = new Button("Изменить");
+            Button btnOK = new Button("Ок");
             btnOK.setStyleName("friendly");
             btnOK.addClickListener(event -> {
                 if(binder.validate().isOk()) {
@@ -225,7 +235,17 @@ public class DoctorView {
                     buttonModalBar,
                     errorMessage);
             modalWindow.center();
-            modalWindowLayout.setWidth("350px");
+
+            modalWindowLayout.setComponentAlignment(firstNameTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(secondNameTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(middleNameTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(specTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(errorMessage,Alignment.TOP_CENTER);
+            buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+            buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+            modalWindowLayout.setWidth("400px");
+
             mainView.addWindow(modalWindow);
 
 
@@ -252,10 +272,10 @@ public class DoctorView {
             modalWindow.setModal(true);
 
             String middleName;
-            if (selectedDoctor.getMiddleName()=="")
+            if (!selectedDoctor.getMiddleName().equals(""))
                 middleName = selectedDoctor.getMiddleName();
             else
-                middleName = new String("<Отсутствует>");
+                middleName = "<Отсутствует>";
 
 
             Label label = new Label(
@@ -268,7 +288,7 @@ public class DoctorView {
                             "</ul> ",
                     ContentMode.HTML);
 
-            Button btnOK = new Button("Удалить");
+            Button btnOK = new Button("Ок");
             btnOK.setStyleName("friendly");
             btnOK.addClickListener(event -> {
                 modalWindow.close();
@@ -283,12 +303,18 @@ public class DoctorView {
             });
             VerticalLayout modalWindowLayout = new VerticalLayout();
             HorizontalLayout buttonModalBar = new HorizontalLayout(btnOK,btnCancel);
-            buttonModalBar.setWidth("500px");
+            buttonModalBar.setWidth("450px");
             modalWindow.setContent(modalWindowLayout);
             modalWindowLayout.addComponents(
                     label,
                     buttonModalBar);
             modalWindow.center();
+
+            modalWindowLayout.setComponentAlignment(label,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+            buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+            buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+
             modalWindowLayout.setWidth("500px");
             mainView.addWindow(modalWindow);
 
@@ -305,10 +331,40 @@ public class DoctorView {
             selectedDoctor = null;
         } catch (Exception e) {
             if(e.getCause() instanceof ConstraintViolationException)
-                new Notification(null, "У докотора уже есть рецепты!", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
+                new Notification(null, "У докотора уже есть рецепты!", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
             else
-                new Notification(null, "Произошел взлом жопы", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
+                new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
         }
+    }
+    private static void openModalStatistic (MainView mainView){
+        modalWindow = new Window("Статистика");
+        modalWindow.setModal(true);
 
+        gridStatistic = new Grid<>();
+        gridStatistic.setWidth("500px");
+        gridStatistic.setHeight("500px");
+
+
+        doctors = doctorService.findAllDoctors();
+        gridStatistic.setItems(doctors);
+        gridStatistic.addColumn(Doctor::getFullName).setCaption("ФИО врача");
+        gridStatistic.addColumn(Doctor::getCountOfPrescriptions).setCaption("Кол-во рецептов");
+
+
+        Button btnCancel = new Button("Закрыть");
+        btnCancel.setStyleName("danger");
+        btnCancel.addClickListener(e -> modalWindow.close());
+        VerticalLayout modalWindowLayout = new VerticalLayout();
+        HorizontalLayout buttonModalBar = new HorizontalLayout(btnCancel);
+        buttonModalBar.setWidth("550px");
+        modalWindow.setContent(modalWindowLayout);
+        modalWindowLayout.addComponents(
+                gridStatistic,
+                buttonModalBar);
+        modalWindowLayout.setComponentAlignment(gridStatistic,Alignment.TOP_CENTER);
+        buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_CENTER);
+        modalWindow.center();
+        modalWindowLayout.setWidth("550px");
+        mainView.addWindow(modalWindow);
     }
 }

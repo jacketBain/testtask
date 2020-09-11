@@ -51,4 +51,5 @@ public class DoctorDAO implements IDao<Doctor,Long> {
         session.close();
         return doctors;
     }
+
 }

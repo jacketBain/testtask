@@ -29,6 +29,8 @@ public class PrescriptionService {
         prescriptionDAO.update(patient);
     }
 
+    public List<Prescription> getFilter(Long id, String priority, String description) { return prescriptionDAO.getFilter(id,priority,description);}
+
     public List<Prescription> findAllPrescriptions() {
         return prescriptionDAO.findAll();
     }

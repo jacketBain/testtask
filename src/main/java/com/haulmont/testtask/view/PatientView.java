@@ -7,6 +7,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.server.Page;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
+import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 
@@ -92,16 +93,12 @@ public class PatientView {
                 .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                 .withStatusLabel(errorMessage)
                 .bind(Patient::getSecondName, Patient::setSecondName);
-        binder.forField(middleNameTextField).asRequired()
-                .withValidator(name -> name.length() <=50,"Некоректная длинна отчества.")
-                .withStatusLabel(errorMessage)
-                .bind(Patient::getMiddleName, Patient::setMiddleName);
         binder.forField(phoneTextField).asRequired()
                 .withValidator(name -> name.length() > 10 && name.substring(0, 2).equals("+7") && name.length() <= 12, "Неверный формат номера")
                 .withStatusLabel(errorMessage)
                 .bind(Patient::getPhoneNumber, Patient::setPhoneNumber);
 
-        Button btnOK = new Button("Добавить");
+        Button btnOK = new Button("Ок");
         btnOK.setStyleName("friendly");
         btnOK.addClickListener(event -> {
             if(binder.validate().isOk()) {
@@ -133,7 +130,17 @@ public class PatientView {
                 buttonModalBar,
                 errorMessage);
         modalWindow.center();
-        modalWindowLayout.setWidth("350px");
+
+        modalWindowLayout.setComponentAlignment(firstNameTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(secondNameTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(middleNameTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(phoneFormatLabel,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(phoneTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(errorMessage,Alignment.TOP_CENTER);
+        buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+        buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+
         mainView.addWindow(modalWindow);
 
 
@@ -186,16 +193,12 @@ public class PatientView {
                     .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
                     .withStatusLabel(errorMessage)
                     .bind(Patient::getSecondName, Patient::setSecondName);
-            binder.forField(middleNameTextField).asRequired()
-                    .withValidator(name -> name.length() <=50,"Некоректная длинна отчества.")
-                    .withStatusLabel(errorMessage)
-                    .bind(Patient::getMiddleName, Patient::setMiddleName);
             binder.forField(phoneTextField).asRequired()
                     .withValidator(name -> name.length() > 10 && name.substring(0, 2).equals("+7") && name.length() <= 12, "Неверный формат номера")
                     .withStatusLabel(errorMessage)
                     .bind(Patient::getPhoneNumber, Patient::setPhoneNumber);
 
-            Button btnOK = new Button("Изменить");
+            Button btnOK = new Button("Ок");
             btnOK.setStyleName("friendly");
             btnOK.addClickListener(event -> {
                 if(binder.validate().isOk()) {
@@ -229,7 +232,17 @@ public class PatientView {
                     buttonModalBar,
                     errorMessage);
             modalWindow.center();
-            modalWindowLayout.setWidth("350px");
+
+            modalWindowLayout.setComponentAlignment(firstNameTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(secondNameTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(middleNameTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(phoneFormatLabel,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(phoneTextField,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(errorMessage,Alignment.TOP_CENTER);
+            buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+            buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+
             mainView.addWindow(modalWindow);
 
 
@@ -255,12 +268,18 @@ public class PatientView {
             modalWindow = new Window("Удаление пациента");
             modalWindow.setModal(true);
 
+            String middleName;
+            if (!selectedPatient.getMiddleName().equals(""))
+                middleName = selectedPatient.getMiddleName();
+            else
+                middleName = "<Отсутствует>";
+
             Label label = new Label(
                     "Вы уверены что хотите удалить врача: \n" +
                             "<ul>"+
                             "  <li> Имя: "+ selectedPatient.getFirstName() +" </li> "+
                             "  <li> Фамилия: "+ selectedPatient.getSecondName() +" </li> "+
-                            "  <li> Отчество: "+ selectedPatient.getMiddleName() +" </li> "+
+                            "  <li> Отчество: "+ middleName +" </li> "+
                             "  <li> Номер телефона: "+ selectedPatient.getPhoneNumber() +" </li> "+
                             "</ul> ",
                     ContentMode.HTML);
@@ -280,12 +299,16 @@ public class PatientView {
             });
             VerticalLayout modalWindowLayout = new VerticalLayout();
             HorizontalLayout buttonModalBar = new HorizontalLayout(btnOK,btnCancel);
-            buttonModalBar.setWidth("500px");
+            buttonModalBar.setWidth("450px");
             modalWindow.setContent(modalWindowLayout);
             modalWindowLayout.addComponents(
                     label,
                     buttonModalBar);
             modalWindow.center();
+            modalWindowLayout.setComponentAlignment(label,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+            buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+            buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
             modalWindowLayout.setWidth("500px");
             mainView.addWindow(modalWindow);
 
@@ -294,9 +317,16 @@ public class PatientView {
             new Notification(null, "Выберите пациента", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
     }
     private static void deletePatient(){
-        patientService.deletePatient(selectedPatient);
-        new Notification(null, "Пациент удален", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
-        updatePatientsTable();
-        selectedPatient = null;
+        try {
+            patientService.deletePatient(selectedPatient);
+            new Notification(null, "Пациент удален", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
+            updatePatientsTable();
+            selectedPatient = null;
+        } catch (Exception e) {
+            if(e.getCause() instanceof ConstraintViolationException)
+                new Notification(null, "У пациента уже есть рецепты!", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+            else
+                new Notification(null, "Неизвестная ошибка", Notification.Type.ERROR_MESSAGE, true).show(Page.getCurrent());
+        }
     }
 }

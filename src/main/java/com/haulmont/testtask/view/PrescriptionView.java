@@ -9,6 +9,7 @@ import com.haulmont.testtask.services.PrescriptionService;
 import com.vaadin.data.Binder;
 import com.vaadin.data.converter.StringToLongConverter;
 import com.vaadin.server.Page;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.*;
 
 import java.sql.Date;
@@ -27,6 +28,7 @@ public class PrescriptionView {
     private static DoctorService doctorService;
     private static PatientService patientService;
     private static Prescription selectedPrescription;
+
 
     public static void initAll(MainView mainView, VerticalLayout layout) {
         gridPrescription = new Grid<>();
@@ -47,18 +49,50 @@ public class PrescriptionView {
         btnDelPrescription.setStyleName("danger");
 
         prescriptionService = new PrescriptionService();
+        patientService = new PatientService();
+
+        HorizontalLayout filterBar = new HorizontalLayout();
+        ComboBox<Patient> patientComboBox = new ComboBox<>("Пациент");
+        try{
+            List<Patient> patients = patientService.findAllPatients();
+            patientComboBox.setItemCaptionGenerator(Patient::getFullName);
+            patientComboBox.setItems(patients);
+            patientComboBox.setEmptySelectionAllowed(false);
+            patientComboBox.setValue(patients.get(0));
+        } catch (Exception ex) {
+        }
+
+        TextField descriptionTextField = new TextField("Описание");
+        descriptionTextField.setWidth("320px");
+
+        ComboBox<String> priorityComboBox = new ComboBox<>("Приоритет");
+        priorityComboBox.setItems("-","Нормальный","Cito","Statim");
+        priorityComboBox.setValue("-");
+        priorityComboBox.setEmptySelectionAllowed(false);
+
+        Button btnApplyFilter = new Button("Применить");
+        btnApplyFilter.setStyleName("friendly");
+        Button btnOffFilter = new Button("Отменить");
+        btnOffFilter.setStyleName("danger");
+
+        filterBar.addComponents(patientComboBox,priorityComboBox,descriptionTextField,btnApplyFilter,btnOffFilter);
+
+        filterBar.setComponentAlignment(btnApplyFilter,Alignment.BOTTOM_CENTER);
+        filterBar.setComponentAlignment(btnOffFilter,Alignment.BOTTOM_CENTER);
 
         btnsLayout.addComponents(btnAddPrescription, btnEditPrescription, btnDelPrescription);
 
-        //Events
+        /* Events */
 
         btnAddPrescription.addClickListener(event -> openModalAddPrescription(mainView));
-//        btnEditPrescription.addClickListener(event -> openModalEditPrescription(mainView));
-//        btnDelPrescription.addClickListener(event -> openModalDeletePrescription(mainView));
+        btnEditPrescription.addClickListener(event -> openModalEditPrescription(mainView));
+        btnDelPrescription.addClickListener(event -> openModalDeletePrescription(mainView));
+        btnApplyFilter.addClickListener(event -> applyFilter(patientComboBox.getSelectedItem().get(),priorityComboBox.getValue(),descriptionTextField.getValue()));
+        btnOffFilter.addClickListener(event -> updatePrescriptionsTable());
 
         fillPrescriptionsTable();
 
-        layout.addComponents(btnsLayout, gridPrescription);
+        layout.addComponents(btnsLayout, gridPrescription, filterBar);
     }
     private static void fillPrescriptionsTable() {
         prescriptions = prescriptionService.findAllPrescriptions();
@@ -95,8 +129,9 @@ public class PrescriptionView {
         } catch (Exception ex) {
             new Notification(null, "Ошибка получения списка врачей", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
         }
+        doctorComboBox.setWidth("320px");
 
-        ComboBox<Patient> patientComboBox = new ComboBox<>("Врач");
+        ComboBox<Patient> patientComboBox = new ComboBox<>("Пациент");
         try{
             List<Patient> patients = patientService.findAllPatients();
             patientComboBox.setItemCaptionGenerator(Patient::getFullName);
@@ -106,17 +141,20 @@ public class PrescriptionView {
         } catch (Exception ex) {
             new Notification(null, "Ошибка получения списка пациентов", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
         }
+        patientComboBox.setWidth("320px");
 
         ComboBox<String> priorityComboBox = new ComboBox<>("Приоритет");
         priorityComboBox.setItems("Нормальный","Cito","Statim");
         priorityComboBox.setValue("Нормальный");
         priorityComboBox.setEmptySelectionAllowed(false);
+        patientComboBox.setWidth("320px");
 
         DateField startDateField = new DateField("Дата начала действия");
         startDateField.setValue(LocalDate.now());
+        startDateField.setWidth("320px");
 
         TextField durationTextField = new TextField("Срок действия (в днях)");
-        descriptionTextField.setWidth("320px");
+        durationTextField.setWidth("320px");
 
         Label errorMessage = new Label();
 
@@ -141,7 +179,7 @@ public class PrescriptionView {
                 .bind(Prescription::getDuration, Prescription::setDuration);
         binder.forField(priorityComboBox).asRequired();
 
-        Button btnOK = new Button("Добавить");
+        Button btnOK = new Button("Ок");
         btnOK.setStyleName("friendly");
         btnOK.addClickListener(event -> {
             if(binder.validate().isOk()) {
@@ -176,7 +214,18 @@ public class PrescriptionView {
                 buttonModalBar,
                 errorMessage);
         modalWindow.center();
-        modalWindowLayout.setWidth("350px");
+
+        modalWindowLayout.setComponentAlignment(descriptionTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(doctorComboBox,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(patientComboBox,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(startDateField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(durationTextField,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(priorityComboBox,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+        modalWindowLayout.setComponentAlignment(errorMessage,Alignment.TOP_CENTER);
+        buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+        buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+
         mainView.addWindow(modalWindow);
 
     }
@@ -192,153 +241,216 @@ public class PrescriptionView {
         new Notification(null, "Рецепт добавлен", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
         updatePrescriptionsTable();
     }
-//    private static void openModalEditPrescription(MainView mainView){
-//        if(selectedPrescription!=null){
-//            modalWindow = new Window("Изменение пациента");
-//
-//            modalWindow.setModal(true);
-//
-//            TextField firstNameTextField = new TextField("Имя");
-//            firstNameTextField.setStyleName("modalElem");
-//            firstNameTextField.setWidth("320px");
-//            firstNameTextField.setValue(selectedPrescription.getFirstName());
-//
-//            TextField secondNameTextField = new TextField("Фамилия");
-//            secondNameTextField.setStyleName("modalElem");
-//            secondNameTextField.setWidth("320px");
-//            secondNameTextField.setValue(selectedPrescription.getSecondName());
-//
-//            TextField middleNameTextField = new TextField("Отчество");
-//            middleNameTextField.setStyleName("modalElem");
-//            middleNameTextField.setWidth("320px");
-//            middleNameTextField.setValue(selectedPrescription.getMiddleName());
-//
-//            Label phoneFormatLabel = new Label("Формат телефона +7xxxxxxxxxx");
-//            TextField phoneTextField = new TextField("Телефон");
-//            phoneTextField.setStyleName("modalElem");
-//            phoneTextField.setValue(selectedPrescription.getPhoneNumber());
-//            phoneTextField.setWidth("320px");
-//            Label errorMessage = new Label();
-//
-//
-//            Binder<Prescription> binder = new Binder<>();
-//            binder.forField(firstNameTextField).asRequired()
-//                    .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна имени.")
-//                    .withStatusLabel(errorMessage)
-//                    .bind(Prescription::getFirstName, Prescription::setFirstName);
-//            binder.forField(secondNameTextField).asRequired()
-//                    .withValidator(name -> name.length() >= 2 && name.length() <=50,"Некоректная длинна фамилии.")
-//                    .withStatusLabel(errorMessage)
-//                    .bind(Prescription::getSecondName, Prescription::setSecondName);
-//            binder.forField(middleNameTextField).asRequired()
-//                    .withValidator(name -> name.length() <=50,"Некоректная длинна отчества.")
-//                    .withStatusLabel(errorMessage)
-//                    .bind(Prescription::getMiddleName, Prescription::setMiddleName);
-//            binder.forField(phoneTextField).asRequired()
-//                    .withValidator(name -> name.length() > 10 && name.substring(0, 2).equals("+7") && name.length() <= 12, "Неверный формат номера")
-//                    .withStatusLabel(errorMessage)
-//                    .bind(Prescription::getPhoneNumber, Prescription::setPhoneNumber);
-//
-//            Button btnOK = new Button("Изменить");
-//            btnOK.setStyleName("friendly");
-//            btnOK.addClickListener(event -> {
-//                if(binder.validate().isOk()) {
-//                    editPrescription(
-//                            selectedPrescription.getPrescriptionId(),
-//                            firstNameTextField.getValue(),
-//                            secondNameTextField.getValue(),
-//                            middleNameTextField.getValue(),
-//                            phoneTextField.getValue());
-//                    modalWindow.close();
-//                }
-//            });
-//
-//            Button btnCancel = new Button("Отменить");
-//            btnCancel.setStyleName("danger");
-//            btnCancel.addClickListener(e -> {
-//                modalWindow.close();
-//                new Notification(null, "Изменение пациента отменено", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-//            });
-//
-//            VerticalLayout modalWindowLayout = new VerticalLayout();
-//            HorizontalLayout buttonModalBar = new HorizontalLayout(btnOK,btnCancel);
-//            buttonModalBar.setWidth("350px");
-//            modalWindow.setContent(modalWindowLayout);
-//            modalWindowLayout.addComponents(
-//                    firstNameTextField,
-//                    secondNameTextField,
-//                    middleNameTextField,
-//                    phoneTextField,
-//                    buttonModalBar);
-//            modalWindow.center();
-//            modalWindowLayout.setWidth("350px");
-//            mainView.addWindow(modalWindow);
-//
-//
-//        }
-//        else
-//            new Notification(null, "Выберите пациента", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-//
-//    }
-//    private static void editPrescription(Long id, String firstName, String secondName, String middleName, String phoneNumber){
-//
-//        Prescription Prescription = PrescriptionService.findPrescription(id);
-//        Prescription.setFirstName(firstName);
-//        Prescription.setSecondName(secondName);
-//        Prescription.setMiddleName(middleName);
-//        Prescription.setPhoneNumber(phoneNumber);
-//        PrescriptionService.updatePrescription(Prescription);
-//        new Notification(null, "Доктор изменен", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
-//        updatePrescriptionsTable();
-//        selectedPrescription = null;
-//    }
-//    private static void openModalDeletePrescription(MainView mainView){
-//        if(selectedPrescription!=null){
-//            modalWindow = new Window("Удаление пациента");
-//            modalWindow.setModal(true);
-//
-//            Label label = new Label(
-//                    "Вы уверены что хотите удалить врача: \n" +
-//                            "<ul>"+
-//                            "  <li> Имя: "+ selectedPrescription.getFirstName() +" </li> "+
-//                            "  <li> Фамилия: "+ selectedPrescription.getSecondName() +" </li> "+
-//                            "  <li> Отчество: "+ selectedPrescription.getMiddleName() +" </li> "+
-//                            "  <li> Номер телефона: "+ selectedPrescription.getPhoneNumber() +" </li> "+
-//                            "</ul> ",
-//                    ContentMode.HTML);
-//
-//            Button btnOK = new Button("Удалить");
-//            btnOK.setStyleName("friendly");
-//            btnOK.addClickListener(event -> {
-//                modalWindow.close();
-//                deletePrescription();
-//            });
-//
-//            Button btnCancel = new Button("Отменить");
-//            btnCancel.setStyleName("danger");
-//            btnCancel.addClickListener(e -> {
-//                modalWindow.close();
-//                new Notification(null, "Удаление пациента отменено", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-//            });
-//            VerticalLayout modalWindowLayout = new VerticalLayout();
-//            HorizontalLayout buttonModalBar = new HorizontalLayout(btnOK,btnCancel);
-//            buttonModalBar.setWidth("500px");
-//            modalWindow.setContent(modalWindowLayout);
-//            modalWindowLayout.addComponents(
-//                    label,
-//                    buttonModalBar);
-//            modalWindow.center();
-//            modalWindowLayout.setWidth("500px");
-//            mainView.addWindow(modalWindow);
-//
-//        }
-//        else
-//            new Notification(null, "Выберите пациента", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
-//    }
-//    private static void deletePrescription(){
-//        PrescriptionService.deletePrescription(selectedPrescription);
-//        new Notification(null, "Пациент удален", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
-//        updatePrescriptionsTable();
-//        selectedPrescription = null;
-//    }
+    private static void openModalEditPrescription(MainView mainView){
+       if(selectedPrescription!=null){
+           modalWindow = new Window("Изменение рецепта");
+
+           modalWindow.setModal(true);
+
+           TextField descriptionTextField = new TextField("Описание");
+           descriptionTextField.setWidth("320px");
+           descriptionTextField.setValue(selectedPrescription.getDescription());
+
+           doctorService = new DoctorService();
+           patientService = new PatientService();
+
+           ComboBox<Doctor> doctorComboBox = new ComboBox<>("Врач");
+           try{
+               List<Doctor> doctors = doctorService.findAllDoctors();
+               doctorComboBox.setItemCaptionGenerator(Doctor::getFullName);
+               doctorComboBox.setItems(doctors);
+               doctorComboBox.setEmptySelectionAllowed(false);
+               doctorComboBox.setSelectedItem(selectedPrescription.getDoctorId());
+           } catch (Exception ex) {
+               new Notification(null, "Ошибка получения списка врачей", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+           }
+           doctorComboBox.setWidth("320px");
+
+           ComboBox<Patient> patientComboBox = new ComboBox<>("Пациент");
+           try{
+               List<Patient> patients = patientService.findAllPatients();
+               patientComboBox.setItemCaptionGenerator(Patient::getFullName);
+               patientComboBox.setItems(patients);
+               patientComboBox.setEmptySelectionAllowed(false);
+               patientComboBox.setSelectedItem(selectedPrescription.getPatientId());
+           } catch (Exception ex) {
+               new Notification(null, "Ошибка получения списка пациентов", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+           }
+           patientComboBox.setWidth("320px");
+
+           ComboBox<String> priorityComboBox = new ComboBox<>("Приоритет");
+           priorityComboBox.setItems("Нормальный","Cito","Statim");
+           priorityComboBox.setValue("Нормальный");
+           priorityComboBox.setEmptySelectionAllowed(false);
+           priorityComboBox.setSelectedItem(selectedPrescription.getPriority());
+           priorityComboBox.setWidth("320px");
+
+           DateField startDateField = new DateField("Дата начала действия");
+           startDateField.setValue(selectedPrescription.getDateStart().toLocalDate());
+           startDateField.setWidth("320px");
+
+
+           TextField durationTextField = new TextField("Срок действия (в днях)");
+           durationTextField.setValue(selectedPrescription.getDuration().toString());
+           descriptionTextField.setWidth("320px");
+           durationTextField.setWidth("320px");
+
+           Label errorMessage = new Label();
+
+           Binder<Prescription> binder = new Binder<>();
+           binder.forField(descriptionTextField).asRequired()
+                   .withValidator(text -> text.length() >= 2 && text.length() <=255,"Некорректная длинна описания.")
+                   .withStatusLabel(errorMessage)
+                   .bind(Prescription::getDescription, Prescription::setDescription);
+           binder.forField(doctorComboBox).asRequired()
+                   .withValidator(Objects::nonNull,"Не выбран врач")
+                   .withStatusLabel(errorMessage)
+                   .bind(Prescription::getDoctorId, Prescription::setDoctorId);
+           binder.forField(patientComboBox).asRequired()
+                   .withValidator(Objects::nonNull,"Не выбран пациент")
+                   .withStatusLabel(errorMessage)
+                   .bind(Prescription::getPatientId, Prescription::setPatientId);
+           binder.forField(startDateField).asRequired("Некорректный формат даты")
+                   .bind(Prescription::getDateStartInLocalDate, Prescription::setDateStartInLocal);
+           binder.forField(durationTextField).asRequired()
+                   .withConverter(new StringToLongConverter("Введите число дней"))
+                   .withValidator(dur -> dur > 0, "Срок действия должен быть больше 0")
+                   .bind(Prescription::getDuration, Prescription::setDuration);
+           binder.forField(priorityComboBox).asRequired();
+
+           Button btnOK = new Button("Ок");
+           btnOK.setStyleName("friendly");
+           btnOK.addClickListener(event -> {
+               if(binder.validate().isOk()) {
+                   editPrescription(selectedPrescription.getPrescriptionId(),
+                           descriptionTextField.getValue(),
+                           doctorComboBox.getSelectedItem().get(),
+                           patientComboBox.getSelectedItem().get(),
+                           Date.valueOf(startDateField.getValue()),
+                           Long.parseLong(durationTextField.getValue()),
+                           priorityComboBox.getValue());
+                   modalWindow.close();
+               }
+           });
+
+           Button btnCancel = new Button("Отменить");
+           btnCancel.setStyleName("danger");
+           btnCancel.addClickListener(e -> {
+               modalWindow.close();
+               new Notification(null, "Изменение рецепта отменено", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+           });
+
+           VerticalLayout modalWindowLayout = new VerticalLayout();
+           HorizontalLayout buttonModalBar = new HorizontalLayout(btnOK,btnCancel);
+           buttonModalBar.setWidth("350px");
+           modalWindow.setContent(modalWindowLayout);
+           modalWindowLayout.addComponents(
+                   descriptionTextField,
+                   doctorComboBox,
+                   patientComboBox,
+                   startDateField,
+                   durationTextField,
+                   priorityComboBox,
+                   buttonModalBar,
+                   errorMessage);
+           modalWindow.center();
+
+           modalWindowLayout.setComponentAlignment(descriptionTextField,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(doctorComboBox,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(patientComboBox,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(startDateField,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(durationTextField,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(priorityComboBox,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+           modalWindowLayout.setComponentAlignment(errorMessage,Alignment.TOP_CENTER);
+           buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+           buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+
+           mainView.addWindow(modalWindow);
+
+
+       }
+       else
+            new Notification(null, "Выберите рецепт", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+   }
+    private static void editPrescription(Long id,String description, Doctor doctor, Patient patient,Date date, Long duration, String priority){
+
+        Prescription prescription = prescriptionService.findPrescription(id);
+        prescription.setDescription(description);
+        prescription.setDoctorId(doctor);
+        prescription.setPatientId(patient);
+        prescription.setDateStart(date);
+        prescription.setDuration(duration);
+        prescription.setPriority(priority);
+        prescriptionService.updatePrescription(prescription);
+        new Notification(null, "Рецепт изменен", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
+        updatePrescriptionsTable();
+        selectedPrescription = null;
+    }
+    private static void openModalDeletePrescription(MainView mainView){
+        if(selectedPrescription!=null){
+            modalWindow = new Window("Удаление рецепта");
+            modalWindow.setModal(true);
+
+            Label label = new Label(
+                    "Вы уверены что хотите удалить рецепт: \n" +
+                            "<ul>"+
+                            "  <li> ФИО врача: "+ selectedPrescription.getDoctorId().getFullName() +" </li> "+
+                            "  <li> ФИО пациента: "+ selectedPrescription.getPatientId().getFullName() +" </li> "+
+                            "  <li> Приоритет: "+ selectedPrescription.getPriority() +" </li> "+
+                            "  <li> Дата начала: "+ selectedPrescription.getDateStartToString() +" </li> "+
+                            "  <li> Дата конца: "+ selectedPrescription.getDateStopToString() +" </li> "+
+                            "</ul> ",
+                    ContentMode.HTML);
+
+            Button btnOK = new Button("Удалить");
+            btnOK.setStyleName("friendly");
+            btnOK.addClickListener(event -> {
+                modalWindow.close();
+                deletePrescription();
+            });
+
+            Button btnCancel = new Button("Отменить");
+            btnCancel.setStyleName("danger");
+            btnCancel.addClickListener(e -> {
+                modalWindow.close();
+                new Notification(null, "Удаление рецепта отменено", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+            });
+            VerticalLayout modalWindowLayout = new VerticalLayout();
+            HorizontalLayout buttonModalBar = new HorizontalLayout(btnOK,btnCancel);
+            buttonModalBar.setWidth("450px");
+            modalWindow.setContent(modalWindowLayout);
+            modalWindowLayout.addComponents(
+                    label,
+                    buttonModalBar);
+            modalWindow.center();
+
+            modalWindowLayout.setComponentAlignment(label,Alignment.TOP_CENTER);
+            modalWindowLayout.setComponentAlignment(buttonModalBar,Alignment.TOP_CENTER);
+            buttonModalBar.setComponentAlignment(btnOK,Alignment.TOP_LEFT);
+            buttonModalBar.setComponentAlignment(btnCancel,Alignment.TOP_RIGHT);
+
+            modalWindowLayout.setWidth("500px");
+            mainView.addWindow(modalWindow);
+
+        }
+        else
+            new Notification(null, "Выберите рецепт", Notification.Type.WARNING_MESSAGE, true).show(Page.getCurrent());
+    }
+    private static void deletePrescription(){
+        try {
+            prescriptionService.deletePrescription(selectedPrescription);
+            new Notification(null, "Рецепт удален", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
+            updatePrescriptionsTable();
+            selectedPrescription = null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Notification(null, "Неизвестная ошибка удаления", Notification.Type.TRAY_NOTIFICATION, true).show(Page.getCurrent());
+        }
+    }
+    private static void applyFilter(Patient patient, String priority, String description){
+        prescriptions = prescriptionService.getFilter(patient.getPatientId(),priority,description);
+        gridPrescription.setItems(prescriptions);
+        selectedPrescription = null;
+    }
 }

@@ -14,16 +14,16 @@ public class Patient {
     @Column(name = "ID_PATIENT",unique = true, nullable = false)
     private Long patientId;
 
-    @Column(name = "FIRSTNAME", nullable = false)
+    @Column(name = "FIRSTNAME", nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "MIDDLENAME")
+    @Column(name = "MIDDLENAME", length = 50)
     private String secondName;
 
-    @Column(name = "LASTNAME", nullable = false)
+    @Column(name = "LASTNAME", nullable = false, length = 50)
     private String middleName;
 
-    @Column(name = "PHONENUMBER",unique = true, nullable = false)
+    @Column(name = "PHONENUMBER",unique = true, nullable = false, length = 12)
     private String phoneNumber;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "patientId")
@@ -78,7 +78,7 @@ public class Patient {
     }
 
     public String getFullName(){
-        if(middleName!=null)
+        if(!middleName.equals(""))
             return secondName+" "+firstName.charAt(0)+"."+middleName.charAt(0)+".";
         else
             return secondName+" "+firstName.charAt(0)+".";
