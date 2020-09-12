@@ -1,0 +1,52 @@
+create table DOCTOR
+(
+    ID_DOCTOR      BIGINT      not null
+        primary key,
+    FIRSTNAME      VARCHAR(50) not null,
+    SECONDNAME     VARCHAR(50) not null,
+    MIDDLENAME     VARCHAR(50),
+    SPECIALIZATION VARCHAR(50) not null
+);
+
+create table PATIENT
+(
+    ID_PATIENT  BIGINT      not null
+        primary key,
+    FIRSTNAME   VARCHAR(50) not null,
+    LASTNAME    VARCHAR(50) not null,
+    PHONENUMBER VARCHAR(12) not null
+        unique,
+    MIDDLENAME  VARCHAR(50)
+
+);
+
+create table PRESCRIPTION
+(
+    ID_PRESCRIPTION BIGINT       not null
+        primary key,
+    DATE            DATE         not null,
+    DESCRIPTION     VARCHAR(255) not null,
+    DURATION        BIGINT       not null,
+    PRIORITY        VARCHAR(10)  not null,
+    ID_DOCTOR       BIGINT
+        constraint FKDOCTOR
+            references DOCTOR,
+    ID_PATIENT      BIGINT
+        constraint FKPATIENT
+            references PATIENT
+);
+INSERT INTO DOCTOR VALUES (1,'Николай','Куприн','Сергеевич','Хирург');
+INSERT INTO DOCTOR VALUES (2,'Александр','Сергеев','Андреевич','Главный хирург');
+INSERT INTO DOCTOR VALUES (3,'Дмитрий','Калашин','Анатольевич','Стоматолог');
+INSERT INTO DOCTOR VALUES (4,'Павел','Усков','Дмитриевич','Оталаринголог');
+INSERT INTO DOCTOR VALUES (5,'Ирина','Шнайдер','Александровна','Невролог');
+INSERT INTO DOCTOR VALUES (6,'Евгений','Шнайдер','Сергеевич','Кардиолог');
+INSERT INTO DOCTOR VALUES (7,'Шень','Джинь','','Психиатр');
+
+INSERT INTO PATIENT VALUES (8,'Александр','Филатов','+79273567076','Глебович');
+INSERT INTO PATIENT VALUES (9,'Александр','Матвеев','+79037844485','Русланович');
+INSERT INTO PATIENT VALUES (10,'Асия','Кейн','+79376887865','');
+INSERT INTO PATIENT VALUES (11,'Максим','Казаков','+79089885563','Демидович');
+INSERT INTO PATIENT VALUES (12,'Мадина','Цветкова','+79378761978','Данииловна');
+INSERT INTO PATIENT VALUES (13,'Ксения','Боброва','+79032677656','Марковна');
+INSERT INTO PATIENT VALUES (14,'Петр','Смирнов','+79267889909','Николаевич');

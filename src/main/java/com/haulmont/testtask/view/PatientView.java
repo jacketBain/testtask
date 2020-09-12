@@ -1,6 +1,6 @@
 package com.haulmont.testtask.view;
 
-import com.haulmont.testtask.entity.Doctor;
+
 import com.haulmont.testtask.entity.Patient;
 import com.haulmont.testtask.services.PatientService;
 import com.vaadin.annotations.StyleSheet;
@@ -12,7 +12,6 @@ import org.hibernate.exception.ConstraintViolationException;
 
 import java.util.List;
 
-@StyleSheet("style.css")
 public class PatientView {
     private static Grid<Patient> gridPatient;
 

@@ -9,6 +9,9 @@
         <param-name>productionMode</param-name>
         <param-value>false</param-value>
     </context-param>
+    <listener>
+        <listener-class>com.haulmont.testtask.utils.WebAppPropertiesListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>Vaadin Application Servlet</servlet-name>
         <servlet-class>com.vaadin.server.VaadinServlet</servlet-class>

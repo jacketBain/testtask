@@ -17,10 +17,10 @@ public class Patient {
     @Column(name = "FIRSTNAME", nullable = false, length = 50)
     private String firstName;
 
-    @Column(name = "MIDDLENAME", length = 50)
+    @Column(name = "LASTNAME", length = 50)
     private String secondName;
 
-    @Column(name = "LASTNAME", nullable = false, length = 50)
+    @Column(name = "MIDDLENAME", nullable = false, length = 50)
     private String middleName;
 
     @Column(name = "PHONENUMBER",unique = true, nullable = false, length = 12)
