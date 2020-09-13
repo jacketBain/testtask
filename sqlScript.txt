@@ -50,3 +50,14 @@ INSERT INTO PATIENT VALUES (11,'Максим','Казаков','+79089885563','�
 INSERT INTO PATIENT VALUES (12,'Мадина','Цветкова','+79378761978','Данииловна');
 INSERT INTO PATIENT VALUES (13,'Ксения','Боброва','+79032677656','Марковна');
 INSERT INTO PATIENT VALUES (14,'Петр','Смирнов','+79267889909','Николаевич');
+
+INSERT INTO PRESCRIPTION VALUES (15,'2020-09-12','Rp.: Sir. Ambroxoli 5% -100 ml',15,'Нормальный',4,10);
+INSERT INTO PRESCRIPTION VALUES (16,'2020-09-12','Caps. Ampicillini 500 mg Внутрь по одной капсуле 2 раза в сутки',10,'Нормальный',1,10);
+INSERT INTO PRESCRIPTION VALUES (17,'2020-09-12','Sol. Furosemidi 1%-2ml Внутривенно после ГКПС',5,'Cito',2,10);
+INSERT INTO PRESCRIPTION VALUES (18,'2020-09-12','Solutionis Kalii bromidi 6,0 – 180 ml M.D.S. По 1 столовой ложке 3 раза в день',14,'Нормальный',6,13);
+INSERT INTO PRESCRIPTION VALUES (19,'2020-09-11','Infusi herbae Thermopsidis 0,9 – 210 ml Внутрь по 2 чайные ложки 2 раза в день',7,'Нормальный',3,8);
+INSERT INTO PRESCRIPTION VALUES (20,'2020-09-11','Tab. Hidrochlorthiazidi 0,025 N 20 Внутрь по одной таблетке один раз в день',10,'Statim',6,11);
+INSERT INTO PRESCRIPTION VALUES (21,'2020-09-01','Pulv. Ceftriaxoni 2,0 Внутримышечно 2 раза в день',5,'Statim',2,14);
+INSERT INTO PRESCRIPTION VALUES (22,'2020-09-01','Caps. Aminazinum 300 mg Внутрь по одной капсуле 1 раза в сутки',30,'Нормальный',7,9);
+INSERT INTO PRESCRIPTION VALUES (23,'2020-09-01','Pulv. Carbidinum  Внутримышечно 3 раза в день',7,'Cito',7,9);
+INSERT INTO PRESCRIPTION VALUES (24,'2020-09-01','Tab. Ketorolaci  10 mg S.Принимать внутрь по 1 таблетке каждые 8 часов.',3,'Cito',3,12);
